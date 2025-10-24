@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# analyzer.py (robust: handles int/str concat, f-strings, jdbc dbtable, simple var resolution)
 """
 Enhanced static PySpark lineage analyzer for MVP:
 - Two-pass approach: gather simple variable constants (including f-strings that reference config/db)
@@ -19,7 +17,6 @@ PROJECT_DIR = "."
 OUTPUT_JSON = "lineage_output.json"
 GRAPH_PNG = "lineage_graph.png"
 
-# ----------------- helpers -----------------
 def load_config(path="config.yml"):
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as fh:
@@ -52,7 +49,6 @@ def describe_node(node):
     if isinstance(node, ast.Name):
         return ("name", node.id)
     if isinstance(node, ast.JoinedStr):
-        # f-string: collect parts (constants or Names)
         parts = []
         for v in node.values:
             if isinstance(v, ast.Constant):
@@ -127,7 +123,6 @@ def eval_simple_node_desc(desc, simple_vars, config):
         return None
     return None
 
-# ----------------- Analyzer -----------------
 class SimpleCollector(ast.NodeVisitor):
     def __init__(self, config):
         self.config = config or {}
@@ -253,7 +248,6 @@ class CallScanner(ast.NodeVisitor):
             except Exception:
                 pass
 
-# ----------------- Controller -----------------
 def analyze_project(project_dir="."):
     config = load_config(os.path.join(project_dir, "config.yml"))
     py_files = []
@@ -295,7 +289,6 @@ def analyze_project(project_dir="."):
 
     return results
 
-# ----------------- JSON sanitization -----------------
 def sanitize_for_json(obj):
     """Recursively convert bytes to str (safe) so JSON dump works."""
     if isinstance(obj, dict):
@@ -311,8 +304,6 @@ def sanitize_for_json(obj):
         # fallback: convert unknown types to string
         return str(obj)
 
-
-# ----------------- Output -----------------
 def write_output(results, out_json=OUTPUT_JSON, png=GRAPH_PNG):
     with open(out_json, "w", encoding="utf-8") as fh:
         json.dump(sanitize_for_json(results), fh, indent=2)

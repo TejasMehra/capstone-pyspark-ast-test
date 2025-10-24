@@ -5,9 +5,7 @@ metrics_table = f"{db}.metrics_agg"
 
 spark = SparkSession.builder.appName("job3").getOrCreate()
 
-# Simulate JDBC read
 jdbc_table = "analytics.user_metrics"
 df = spark.read.format("jdbc").option("url", "jdbc:postgresql://host:port/db").option("dbtable", jdbc_table).load()
 
-# Write aggregated metrics
 df.write.saveAsTable(metrics_table)
